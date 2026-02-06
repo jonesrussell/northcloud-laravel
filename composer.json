@@ -26,6 +26,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "JonesRussell\\NorthCloud\\Database\\Factories\\": "database/factories/",
             "JonesRussell\\NorthCloud\\Tests\\": "tests/"
         }
     },
