@@ -1,0 +1,47 @@
+{
+    "name": "jonesrussell/northcloud-laravel",
+    "description": "Shared article ingestion pipeline for North Cloud-connected Laravel sites",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "illuminate/console": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/events": "^12.0",
+        "illuminate/support": "^12.0",
+        "ext-redis": "*",
+        "ext-json": "*",
+        "ext-pcntl": "*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "laravel/pint": "^1.24"
+    },
+    "autoload": {
+        "psr-4": {
+            "JonesRussell\\NorthCloud\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JonesRussell\\NorthCloud\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JonesRussell\\NorthCloud\\NorthCloudServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
