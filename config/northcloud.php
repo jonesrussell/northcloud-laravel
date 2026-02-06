@@ -1,0 +1,39 @@
+<?php
+
+return [
+    'redis' => [
+        'connection' => env('NORTHCLOUD_REDIS_CONNECTION', 'northcloud'),
+        'channels' => array_filter(array_map(
+            'trim',
+            explode(',', env('NORTHCLOUD_CHANNELS', 'articles:default'))
+        )),
+    ],
+
+    'quality' => [
+        'min_score' => (int) env('NORTHCLOUD_MIN_QUALITY_SCORE', 0),
+        'enabled' => (bool) env('NORTHCLOUD_QUALITY_FILTER', false),
+    ],
+
+    'models' => [
+        'article' => \JonesRussell\NorthCloud\Models\Article::class,
+        'news_source' => \JonesRussell\NorthCloud\Models\NewsSource::class,
+        'tag' => \JonesRussell\NorthCloud\Models\Tag::class,
+    ],
+
+    'processors' => [
+        \JonesRussell\NorthCloud\Processing\DefaultArticleProcessor::class,
+    ],
+
+    'processing' => [
+        'sync' => (bool) env('NORTHCLOUD_PROCESS_SYNC', true),
+    ],
+
+    'content' => [
+        'allowed_tags' => ['p', 'br', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    ],
+
+    'tags' => [
+        'default_type' => 'topic',
+        'auto_create' => true,
+    ],
+];
