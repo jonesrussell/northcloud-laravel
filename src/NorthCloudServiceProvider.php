@@ -3,12 +3,17 @@
 namespace JonesRussell\NorthCloud;
 
 use Illuminate\Support\ServiceProvider;
+use JonesRussell\NorthCloud\Services\ArticleIngestionService;
+use JonesRussell\NorthCloud\Services\NewsSourceResolver;
 
 class NorthCloudServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/northcloud.php', 'northcloud');
+
+        $this->app->singleton(NewsSourceResolver::class);
+        $this->app->singleton(ArticleIngestionService::class);
     }
 
     public function boot(): void
