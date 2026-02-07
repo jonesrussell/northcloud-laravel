@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'migrations' => [
+        'enabled' => (bool) env('NORTHCLOUD_MIGRATIONS_ENABLED', true),
+    ],
+
     'redis' => [
         'connection' => env('NORTHCLOUD_REDIS_CONNECTION', 'northcloud'),
         'channels' => array_filter(array_map(
