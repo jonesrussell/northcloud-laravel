@@ -64,12 +64,14 @@ class ArticleResource
         foreach ($this->fields() as $field) {
             if ($field['name'] === 'url') {
                 $rules['url'] = array_merge($field['rules'], ['unique:articles,url']);
+
                 continue;
             }
 
             if (isset($field['item_rules'])) {
                 $rules[$field['name']] = $field['rules'];
                 $rules[$field['name'].'.*'] = $field['item_rules'];
+
                 continue;
             }
 
@@ -89,12 +91,14 @@ class ArticleResource
                     $field['rules'],
                     [Rule::unique('articles', 'url')->ignore($articleId)]
                 );
+
                 continue;
             }
 
             if (isset($field['item_rules'])) {
                 $rules[$field['name']] = $field['rules'];
                 $rules[$field['name'].'.*'] = $field['item_rules'];
+
                 continue;
             }
 

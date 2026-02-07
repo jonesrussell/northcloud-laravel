@@ -74,23 +74,19 @@ class NorthCloudServiceProvider extends ServiceProvider
             ], 'northcloud-migrations');
 
             $this->publishes([
-                __DIR__.'/../resources/js/pages/dashboard/articles' =>
-                    resource_path('js/pages/dashboard/articles'),
+                __DIR__.'/../resources/js/pages/dashboard/articles' => resource_path('js/pages/dashboard/articles'),
             ], 'northcloud-admin-views');
 
             $this->publishes([
-                __DIR__.'/../resources/js/components/admin' =>
-                    resource_path('js/components/admin'),
+                __DIR__.'/../resources/js/components/admin' => resource_path('js/components/admin'),
             ], 'northcloud-admin-components');
 
             $this->publishes([
-                __DIR__.'/../resources/js/layouts/AdminLayout.vue' =>
-                    resource_path('js/layouts/AdminLayout.vue'),
+                __DIR__.'/../resources/js/layouts/AdminLayout.vue' => resource_path('js/layouts/AdminLayout.vue'),
             ], 'northcloud-admin-layout');
 
             $this->publishes([
-                __DIR__.'/../database/admin-migrations/2025_01_01_000005_add_is_admin_to_users_table.php' =>
-                    database_path('migrations/2025_01_01_000005_add_is_admin_to_users_table.php'),
+                __DIR__.'/../database/admin-migrations/2025_01_01_000005_add_is_admin_to_users_table.php' => database_path('migrations/2025_01_01_000005_add_is_admin_to_users_table.php'),
             ], 'northcloud-admin-migrations');
         }
     }
