@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use JonesRussell\NorthCloud\Database\Factories\NewsSourceFactory;
-
 class NewsSource extends Model
 {
     use HasFactory;
@@ -38,8 +36,8 @@ class NewsSource extends Model
         return $query->where('is_active', true);
     }
 
-    protected static function newFactory(): NewsSourceFactory
+    protected static function newFactory()
     {
-        return NewsSourceFactory::new();
+        return \JonesRussell\NorthCloud\Database\Factories\NewsSourceFactory::new();
     }
 }

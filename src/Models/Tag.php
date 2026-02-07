@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use JonesRussell\NorthCloud\Database\Factories\TagFactory;
-
 class Tag extends Model
 {
     use HasFactory;
@@ -35,8 +33,8 @@ class Tag extends Model
         return $query->orderByDesc('article_count')->limit($limit);
     }
 
-    protected static function newFactory(): TagFactory
+    protected static function newFactory()
     {
-        return TagFactory::new();
+        return \JonesRussell\NorthCloud\Database\Factories\TagFactory::new();
     }
 }

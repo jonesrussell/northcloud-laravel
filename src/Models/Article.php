@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use JonesRussell\NorthCloud\Contracts\ArticleModel;
-use JonesRussell\NorthCloud\Database\Factories\ArticleFactory;
 
 class Article extends Model implements ArticleModel
 {
@@ -106,8 +105,8 @@ class Article extends Model implements ArticleModel
         $this->increment('view_count');
     }
 
-    protected static function newFactory(): ArticleFactory
+    protected static function newFactory()
     {
-        return ArticleFactory::new();
+        return \JonesRussell\NorthCloud\Database\Factories\ArticleFactory::new();
     }
 }
