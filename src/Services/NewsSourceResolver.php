@@ -2,6 +2,7 @@
 
 namespace JonesRussell\NorthCloud\Services;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class NewsSourceResolver
@@ -9,7 +10,7 @@ class NewsSourceResolver
     /**
      * Resolve a NewsSource from an article URL.
      */
-    public function resolve(string $url): mixed
+    public function resolve(string $url): Model
     {
         $domain = $this->extractDomain($url);
         $slug = Str::slug(str_replace('.', '-', $domain));
@@ -31,7 +32,7 @@ class NewsSourceResolver
     /**
      * Resolve a NewsSource from article data array using URL fallback chain.
      */
-    public function resolveFromData(array $data): mixed
+    public function resolveFromData(array $data): Model
     {
         $url = $data['canonical_url']
             ?? $data['og_url']

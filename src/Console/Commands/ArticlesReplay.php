@@ -3,13 +3,17 @@
 namespace JonesRussell\NorthCloud\Console\Commands;
 
 use Illuminate\Console\Command;
+use JonesRussell\NorthCloud\Console\Commands\Concerns\ParsesSince;
 use JonesRussell\NorthCloud\Processing\ProcessorPipeline;
 
 class ArticlesReplay extends Command
 {
+    use ParsesSince;
+
     protected $signature = 'articles:replay
         {--id= : Replay a specific article by ID}
         {--since= : Replay articles from the last N hours/days (e.g., 24h, 7d)}
+        {--full : Update existing articles instead of skipping duplicates}
         {--dry-run : Show which articles would be replayed without processing}';
 
     protected $description = 'Re-process existing articles through the processor pipeline';
@@ -46,10 +50,11 @@ class ArticlesReplay extends Command
         $this->info("Replaying {$articles->count()} article(s)...");
         $processed = 0;
         $errors = 0;
+        $full = $this->option('full');
 
         foreach ($articles as $article) {
             try {
-                $data = $this->reconstructData($article);
+                $data = $this->reconstructData($article, $full);
                 $pipeline->run($data);
                 $processed++;
 
@@ -67,11 +72,11 @@ class ArticlesReplay extends Command
         return $errors > 0 ? self::FAILURE : self::SUCCESS;
     }
 
-    protected function reconstructData($article): array
+    protected function reconstructData($article, bool $full = false): array
     {
         $metadata = $article->metadata ?? [];
 
-        return [
+        $data = [
             'id' => $article->external_id ?? "replay-{$article->id}",
             'title' => $article->title,
             'canonical_url' => $article->url,
@@ -85,23 +90,13 @@ class ArticlesReplay extends Command
             'mining' => $metadata['mining'] ?? null,
             'image_url' => $article->image_url,
             'topics' => $article->tags->pluck('slug')->all(),
+            '_existing_article' => $article,
         ];
-    }
 
-    protected function parseSince(?string $since)
-    {
-        if (! $since) {
-            return null;
+        if ($full) {
+            $data['_replay'] = true;
         }
 
-        if (preg_match('/^(\d+)h$/', $since, $m)) {
-            return now()->subHours((int) $m[1]);
-        }
-
-        if (preg_match('/^(\d+)d$/', $since, $m)) {
-            return now()->subDays((int) $m[1]);
-        }
-
-        return null;
+        return $data;
     }
 }

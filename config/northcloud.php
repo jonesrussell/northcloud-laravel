@@ -35,5 +35,6 @@ return [
     'tags' => [
         'default_type' => 'topic',
         'auto_create' => true,
+        'allowed' => [],  // Empty array means all tags allowed
     ],
 ];

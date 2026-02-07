@@ -27,9 +27,9 @@ Add the following variables to your `.env` file:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `NORTHCLOUD_REDIS_CONNECTION` | Redis connection name to use | `default` |
-| `NORTHCLOUD_CHANNELS` | Comma-separated Redis channels to subscribe to | `articles:crime` |
-| `ARTICLES_MIN_QUALITY_SCORE` | Minimum quality score for ingested articles | `0` |
+| `NORTHCLOUD_REDIS_CONNECTION` | Redis connection name to use | `northcloud` |
+| `NORTHCLOUD_CHANNELS` | Comma-separated Redis channels to subscribe to | `articles:default` |
+| `NORTHCLOUD_MIN_QUALITY_SCORE` | Minimum quality score for ingested articles | `0` |
 
 ## Artisan Commands
 

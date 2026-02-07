@@ -12,23 +12,24 @@ class ArticleIngestionService
         protected NewsSourceResolver $sourceResolver,
     ) {}
 
-    public function ingest(array $data): ?Model
+    public function ingest(array $data, bool $skipDedup = false): ?Model
     {
         if (! $this->validate($data)) {
             return null;
         }
 
-        if ($this->exists($data['id'])) {
+        $articleModel = config('northcloud.models.article');
+        $existing = $articleModel::where('external_id', $data['id'])->first();
+
+        if ($existing && ! $skipDedup) {
             return null;
         }
 
-        $articleModel = config('northcloud.models.article');
         $source = $this->sourceResolver->resolveFromData($data);
 
-        $article = $articleModel::create([
+        $attributes = [
             'news_source_id' => $source->id,
             'title' => $data['title'] ?? $data['og_title'] ?? 'Untitled Article',
-            'slug' => $this->generateSlug($data['title'] ?? $data['og_title'] ?? 'untitled'),
             'excerpt' => $data['intro'] ?? $data['og_description'] ?? null,
             'content' => $this->sanitizeContent($data['body'] ?? null),
             'url' => $this->getArticleUrl($data),
@@ -39,9 +40,17 @@ class ArticleIngestionService
             'published_at' => $this->getPublishedDate($data),
             'crawled_at' => now(),
             'metadata' => $this->buildMetadata($data),
-            'view_count' => 0,
-            'is_featured' => false,
-        ]);
+        ];
+
+        if ($existing) {
+            $existing->update($attributes);
+            $article = $existing;
+        } else {
+            $attributes['slug'] = $this->generateSlug($data['title'] ?? $data['og_title'] ?? 'untitled');
+            $attributes['view_count'] = 0;
+            $attributes['is_featured'] = false;
+            $article = $articleModel::create($attributes);
+        }
 
         $this->attachTags($article, $data['topics'] ?? []);
 

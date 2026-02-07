@@ -2,6 +2,7 @@
 
 namespace JonesRussell\NorthCloud\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -71,7 +72,7 @@ class Article extends Model implements ArticleModel
         return $this->status === 'published' && $this->published_at !== null;
     }
 
-    public function scopePublished($query)
+    public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published')
             ->whereNotNull('published_at')
@@ -79,22 +80,24 @@ class Article extends Model implements ArticleModel
             ->orderByDesc('published_at');
     }
 
-    public function scopeFeatured($query)
+    public function scopeFeatured(Builder $query): Builder
     {
         return $query->where('is_featured', true);
     }
 
-    public function scopeWithTag($query, string $tagSlug)
+    public function scopeWithTag(Builder $query, string $tagSlug): Builder
     {
         return $query->whereHas('tags', fn ($q) => $q->where('slug', $tagSlug));
     }
 
-    public function scopeSearch($query, string $term)
+    public function scopeSearch(Builder $query, string $term): Builder
     {
-        return $query->where(function ($q) use ($term) {
-            $q->where('title', 'LIKE', "%{$term}%")
-                ->orWhere('excerpt', 'LIKE', "%{$term}%")
-                ->orWhere('content', 'LIKE', "%{$term}%");
+        $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $term);
+
+        return $query->where(function ($q) use ($escaped) {
+            $q->where('title', 'LIKE', "%{$escaped}%")
+                ->orWhere('excerpt', 'LIKE', "%{$escaped}%")
+                ->orWhere('content', 'LIKE', "%{$escaped}%");
         });
     }
 

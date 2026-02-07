@@ -4,9 +4,12 @@ namespace JonesRussell\NorthCloud\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use JonesRussell\NorthCloud\Console\Commands\Concerns\ParsesSince;
 
 class ArticlesStats extends Command
 {
+    use ParsesSince;
+
     protected $signature = 'articles:stats
         {--since= : Time period (e.g., 7d, 24h, 30d)}
         {--sources : Show only source breakdown}
@@ -69,19 +72,20 @@ class ArticlesStats extends Command
         $this->info('By Source (top 10)');
         $this->line(str_repeat('─', 30));
 
-        $sources = DB::table('articles')
-            ->selectRaw('news_source_id, COUNT(*) as article_count')
-            ->when($since, fn ($q) => $q->where('created_at', '>=', $since))
-            ->whereNull('deleted_at')
-            ->groupBy('news_source_id')
+        $table = (new $articleModel)->getTable();
+
+        $sources = DB::table($table)
+            ->join('news_sources', "{$table}.news_source_id", '=', 'news_sources.id')
+            ->selectRaw('news_sources.name, COUNT(*) as article_count')
+            ->when($since, fn ($q) => $q->where("{$table}.created_at", '>=', $since))
+            ->whereNull("{$table}.deleted_at")
+            ->groupBy('news_sources.name')
             ->orderByDesc('article_count')
             ->limit(10)
             ->get();
 
-        $newsSourceModel = config('northcloud.models.news_source');
         foreach ($sources as $row) {
-            $source = $newsSourceModel::find($row->news_source_id);
-            $name = $source ? str_pad($source->name, 25) : str_pad('Unknown', 25);
+            $name = str_pad($row->name ?? 'Unknown', 25);
             $this->line("{$name} {$row->article_count}");
         }
     }
@@ -125,22 +129,5 @@ class ArticlesStats extends Command
         $this->line(json_encode($data, JSON_PRETTY_PRINT));
 
         return self::SUCCESS;
-    }
-
-    protected function parseSince(?string $since)
-    {
-        if (! $since) {
-            return null;
-        }
-
-        if (preg_match('/^(\d+)h$/', $since, $m)) {
-            return now()->subHours((int) $m[1]);
-        }
-
-        if (preg_match('/^(\d+)d$/', $since, $m)) {
-            return now()->subDays((int) $m[1]);
-        }
-
-        return null;
     }
 }

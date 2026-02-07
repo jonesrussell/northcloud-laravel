@@ -2,6 +2,7 @@
 
 namespace JonesRussell\NorthCloud\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -24,12 +25,12 @@ class Tag extends Model
             ->withTimestamps();
     }
 
-    public function scopeType($query, string $type)
+    public function scopeType(Builder $query, string $type): Builder
     {
         return $query->where('type', $type);
     }
 
-    public function scopePopular($query, int $limit = 10)
+    public function scopePopular(Builder $query, int $limit = 10): Builder
     {
         return $query->orderByDesc('article_count')->limit($limit);
     }

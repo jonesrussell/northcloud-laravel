@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Eloquent\Model;
+use JonesRussell\NorthCloud\Contracts\ArticleModel;
 use JonesRussell\NorthCloud\Contracts\ArticleProcessor;
 use JonesRussell\NorthCloud\Models\Article;
 use JonesRussell\NorthCloud\Processing\DefaultArticleProcessor;
@@ -67,7 +68,7 @@ it('chains multiple processors', function () {
 
 class RejectAllProcessor implements ArticleProcessor
 {
-    public function process(array $data, ?Model $article): ?Model
+    public function process(array $data, ?ArticleModel $article): ?Model
     {
         return null;
     }
@@ -80,7 +81,7 @@ class RejectAllProcessor implements ArticleProcessor
 
 class AppendMetadataProcessor implements ArticleProcessor
 {
-    public function process(array $data, ?Model $article): ?Model
+    public function process(array $data, ?ArticleModel $article): ?Model
     {
         if ($article) {
             $metadata = $article->metadata ?? [];

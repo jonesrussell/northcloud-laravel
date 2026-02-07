@@ -24,7 +24,7 @@ class SubscribeToArticleFeed extends Command
 
     protected int $errorCount = 0;
 
-    public function handle(): void
+    public function handle(): int
     {
         $channels = $this->resolveChannels();
         $connection = $this->option('connection') ?? config('northcloud.redis.connection', 'northcloud');
@@ -39,7 +39,7 @@ class SubscribeToArticleFeed extends Command
         if (! $redisConfig) {
             $this->error("Redis connection [{$connection}] not configured in database.redis.");
 
-            return;
+            return self::FAILURE;
         }
 
         while (! $this->shouldStop) {
@@ -50,6 +50,12 @@ class SubscribeToArticleFeed extends Command
                     $this->processMessage($message);
                 });
             } catch (\RedisException $e) {
+                try {
+                    $client->close();
+                } catch (\Throwable) {
+                    // Ignore close errors on broken connection
+                }
+
                 if ($this->shouldStop) {
                     break;
                 }
@@ -63,6 +69,12 @@ class SubscribeToArticleFeed extends Command
                 Log::error('Redis subscriber error', ['error' => $msg]);
                 sleep(5);
             } catch (\Exception $e) {
+                try {
+                    $client->close();
+                } catch (\Throwable) {
+                    // Ignore close errors on broken connection
+                }
+
                 if ($this->shouldStop) {
                     break;
                 }
@@ -74,6 +86,8 @@ class SubscribeToArticleFeed extends Command
         }
 
         $this->displaySummary();
+
+        return self::SUCCESS;
     }
 
     protected function resolveChannels(): array
@@ -147,15 +161,7 @@ class SubscribeToArticleFeed extends Command
 
     protected function isValidMessage(array $data): bool
     {
-        if (! isset($data['id'])) {
-            return false;
-        }
-
-        if (! isset($data['title']) && ! isset($data['og_title'])) {
-            return false;
-        }
-
-        return true;
+        return isset($data['id']) && isset($data['title']);
     }
 
     protected function createRedisClient(array $config): \Redis
