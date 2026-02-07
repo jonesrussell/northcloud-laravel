@@ -41,4 +41,16 @@ return [
         'auto_create' => true,
         'allowed' => [],  // Empty array means all tags allowed
     ],
+
+    'admin' => [
+        'middleware' => ['auth', 'northcloud-admin'],
+        'prefix' => 'dashboard/articles',
+        'name_prefix' => 'dashboard.articles.',
+        'resource' => \JonesRussell\NorthCloud\Admin\ArticleResource::class,
+        'controller' => \JonesRussell\NorthCloud\Http\Controllers\Admin\ArticleController::class,
+        'policy' => null,  // null = is_admin check; set to policy class for custom auth
+        'views' => [
+            'prefix' => 'dashboard/articles',
+        ],
+    ],
 ];
