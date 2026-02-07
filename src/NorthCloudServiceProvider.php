@@ -21,6 +21,7 @@ class NorthCloudServiceProvider extends ServiceProvider
                 Console\Commands\ArticlesStatus::class,
                 Console\Commands\ArticlesStats::class,
                 Console\Commands\ArticlesTestPublish::class,
+                Console\Commands\ArticlesReplay::class,
             ]);
 
             $this->publishes([
