@@ -16,6 +16,10 @@ class NorthCloudServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         if ($this->app->runningInConsole()) {
+            $this->commands([
+                Console\Commands\SubscribeToArticleFeed::class,
+            ]);
+
             $this->publishes([
                 __DIR__ . '/../config/northcloud.php' => config_path('northcloud.php'),
             ], 'northcloud-config');
