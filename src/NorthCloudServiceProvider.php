@@ -20,6 +20,7 @@ class NorthCloudServiceProvider extends ServiceProvider
                 Console\Commands\SubscribeToArticleFeed::class,
                 Console\Commands\ArticlesStatus::class,
                 Console\Commands\ArticlesStats::class,
+                Console\Commands\ArticlesTestPublish::class,
             ]);
 
             $this->publishes([
