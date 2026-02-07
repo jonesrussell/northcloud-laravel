@@ -10,7 +10,7 @@ class NorthCloudServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/northcloud.php', 'northcloud');
+        $this->mergeConfigFrom(__DIR__.'/../config/northcloud.php', 'northcloud');
 
         $this->app->singleton(NewsSourceResolver::class);
         $this->app->singleton(ArticleIngestionService::class);
@@ -18,7 +18,7 @@ class NorthCloudServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -30,11 +30,11 @@ class NorthCloudServiceProvider extends ServiceProvider
             ]);
 
             $this->publishes([
-                __DIR__ . '/../config/northcloud.php' => config_path('northcloud.php'),
+                __DIR__.'/../config/northcloud.php' => config_path('northcloud.php'),
             ], 'northcloud-config');
 
             $this->publishes([
-                __DIR__ . '/../database/migrations' => database_path('migrations'),
+                __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'northcloud-migrations');
         }
     }

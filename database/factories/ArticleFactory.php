@@ -18,7 +18,7 @@ class ArticleFactory extends Factory
         return [
             'news_source_id' => NewsSource::factory(),
             'title' => $title,
-            'slug' => Str::slug($title) . '-' . fake()->unique()->randomNumber(5),
+            'slug' => Str::slug($title).'-'.fake()->unique()->randomNumber(5),
             'excerpt' => fake()->paragraph(),
             'content' => fake()->paragraphs(3, true),
             'url' => fake()->unique()->url(),

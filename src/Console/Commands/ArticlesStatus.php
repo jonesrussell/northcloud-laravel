@@ -50,13 +50,13 @@ class ArticlesStatus extends Command
                 $this->line("Connection:      <fg=green>Connected</> (latency: {$latency}ms)");
                 $client->close();
             } catch (\Exception $e) {
-                $this->line("Connection:      <fg=yellow>Not tested</> (ext-redis not available or connection failed)");
+                $this->line('Connection:      <fg=yellow>Not tested</> (ext-redis not available or connection failed)');
             }
         } else {
-            $this->line("Redis host:      <fg=red>Not configured</>");
+            $this->line('Redis host:      <fg=red>Not configured</>');
         }
 
-        $this->line('Channels:        ' . count($channels) . ' configured');
+        $this->line('Channels:        '.count($channels).' configured');
         foreach ($channels as $channel) {
             $this->line("  - {$channel}");
         }
@@ -67,12 +67,12 @@ class ArticlesStatus extends Command
             $this->line('Quality filter:  disabled');
         }
 
-        $this->line('Processing mode: ' . ($sync ? 'sync' : 'queued'));
+        $this->line('Processing mode: '.($sync ? 'sync' : 'queued'));
         $this->line("Article model:   {$articleModel}");
 
         if (! empty($processors)) {
             $names = array_map(fn ($p) => class_basename($p), $processors);
-            $this->line('Processors:      ' . implode(' → ', $names));
+            $this->line('Processors:      '.implode(' → ', $names));
         }
     }
 

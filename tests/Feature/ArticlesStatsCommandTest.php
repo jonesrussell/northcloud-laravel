@@ -2,7 +2,6 @@
 
 use JonesRussell\NorthCloud\Models\Article;
 use JonesRussell\NorthCloud\Models\NewsSource;
-use JonesRussell\NorthCloud\Models\Tag;
 
 it('registers the articles:stats command', function () {
     $this->artisan('list')

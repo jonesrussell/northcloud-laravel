@@ -18,6 +18,7 @@ class ProcessorPipeline
 
             if (! $processor instanceof ArticleProcessor) {
                 Log::warning("Processor {$processorClass} does not implement ArticleProcessor, skipping.");
+
                 continue;
             }
 

@@ -24,7 +24,7 @@ class ArticlesTestPublish extends Command
         $json = json_encode($payload, JSON_PRETTY_PRINT);
 
         if ($this->option('dry-run')) {
-            $this->info('Dry run — would publish to: ' . $channel);
+            $this->info('Dry run — would publish to: '.$channel);
             $this->newLine();
             $this->line($json);
 
@@ -67,12 +67,12 @@ class ArticlesTestPublish extends Command
 
     protected function buildTestPayload(string $channel, int $quality): array
     {
-        $id = 'test-' . Str::uuid();
+        $id = 'test-'.Str::uuid();
 
         return [
             'id' => $id,
-            'title' => 'Test Article: ' . fake()->sentence(6),
-            'canonical_url' => 'https://test.northcloud.example/' . Str::slug(fake()->sentence(3)),
+            'title' => 'Test Article: '.fake()->sentence(6),
+            'canonical_url' => 'https://test.northcloud.example/'.Str::slug(fake()->sentence(3)),
             'source' => 'https://test.northcloud.example',
             'published_date' => now()->toIso8601String(),
             'publisher' => [
@@ -81,7 +81,7 @@ class ArticlesTestPublish extends Command
                 'channel' => $channel,
             ],
             'intro' => fake()->paragraph(),
-            'body' => '<p>' . fake()->paragraphs(2, true) . '</p>',
+            'body' => '<p>'.fake()->paragraphs(2, true).'</p>',
             'topics' => ['test'],
             'quality_score' => $quality,
         ];

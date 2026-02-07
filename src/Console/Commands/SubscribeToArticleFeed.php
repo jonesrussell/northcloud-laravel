@@ -30,7 +30,7 @@ class SubscribeToArticleFeed extends Command
         $connection = $this->option('connection') ?? config('northcloud.redis.connection', 'northcloud');
 
         $this->info("Connection: {$connection}");
-        $this->info('Subscribing to channels: ' . implode(', ', $channels));
+        $this->info('Subscribing to channels: '.implode(', ', $channels));
 
         $this->registerSignalHandlers();
 

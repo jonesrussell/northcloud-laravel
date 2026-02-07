@@ -2,7 +2,6 @@
 
 use JonesRussell\NorthCloud\Models\Article;
 use JonesRussell\NorthCloud\Models\NewsSource;
-use JonesRussell\NorthCloud\Models\Tag;
 use JonesRussell\NorthCloud\Services\ArticleIngestionService;
 
 beforeEach(function () {

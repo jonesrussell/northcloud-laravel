@@ -87,7 +87,7 @@ class ArticleIngestionService
     {
         return $data['canonical_url']
             ?? $data['og_url']
-            ?? $data['source'] ?? 'https://unknown/' . ($data['id'] ?? Str::uuid());
+            ?? $data['source'] ?? 'https://unknown/'.($data['id'] ?? Str::uuid());
     }
 
     protected function getPublishedDate(array $data): Carbon

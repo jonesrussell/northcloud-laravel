@@ -16,7 +16,7 @@ class NewsSourceFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name) . '-' . fake()->unique()->randomNumber(4),
+            'slug' => Str::slug($name).'-'.fake()->unique()->randomNumber(4),
             'url' => fake()->unique()->url(),
             'logo_url' => null,
             'description' => fake()->optional()->sentence(),

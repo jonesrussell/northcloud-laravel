@@ -16,7 +16,7 @@ class TagFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name) . '-' . fake()->unique()->randomNumber(4),
+            'slug' => Str::slug($name).'-'.fake()->unique()->randomNumber(4),
             'type' => 'topic',
             'color' => fake()->optional()->hexColor(),
             'description' => fake()->optional()->sentence(),
