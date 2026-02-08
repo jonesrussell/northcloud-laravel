@@ -43,7 +43,7 @@ return [
     ],
 
     'admin' => [
-        'middleware' => ['auth', 'northcloud-admin'],
+        'middleware' => ['web', 'auth', 'northcloud-admin'],
         'prefix' => 'dashboard/articles',
         'name_prefix' => 'dashboard.articles.',
         'resource' => \JonesRussell\NorthCloud\Admin\ArticleResource::class,
