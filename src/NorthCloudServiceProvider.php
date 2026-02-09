@@ -3,6 +3,7 @@
 namespace JonesRussell\NorthCloud;
 
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 use JonesRussell\NorthCloud\Admin\ArticleResource;
 use JonesRussell\NorthCloud\Services\ArticleIngestionService;
 use JonesRussell\NorthCloud\Services\NewsSourceResolver;
@@ -26,6 +27,27 @@ class NorthCloudServiceProvider extends ServiceProvider
 
             return new $resourceClass;
         });
+    }
+
+    protected function shareNavigation(): void
+    {
+        if (! config('northcloud.navigation.enabled', true)) {
+            return;
+        }
+
+        if (! class_exists(Inertia::class)) {
+            return;
+        }
+
+        Inertia::share('northcloud', fn () => [
+            'navigation' => collect(config('northcloud.navigation.items', []))
+                ->map(fn (array $item) => [
+                    'title' => $item['title'],
+                    'href' => route($item['route']),
+                    'icon' => $item['icon'],
+                ])
+                ->all(),
+        ]);
     }
 
     protected function deepMergeConfigKey(string $key): void
@@ -55,6 +77,8 @@ class NorthCloudServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../routes/admin.php');
         $this->app['router']->aliasMiddleware('northcloud-admin',
             Http\Middleware\EnsureUserIsAdmin::class);
+
+        $this->shareNavigation();
 
         if ($this->app->runningInConsole()) {
             $this->commands([

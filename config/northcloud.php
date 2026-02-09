@@ -42,6 +42,17 @@ return [
         'allowed' => [],  // Empty array means all tags allowed
     ],
 
+    'navigation' => [
+        'enabled' => true,
+        'items' => [
+            [
+                'title' => 'Articles',
+                'route' => 'dashboard.articles.index',
+                'icon' => 'FileText',
+            ],
+        ],
+    ],
+
     'admin' => [
         'middleware' => ['web', 'auth', 'northcloud-admin'],
         'prefix' => 'dashboard/articles',
