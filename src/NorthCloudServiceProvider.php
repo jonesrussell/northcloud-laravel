@@ -19,6 +19,8 @@ class NorthCloudServiceProvider extends ServiceProvider
         $this->deepMergeConfigKey('northcloud.admin');
         $this->deepMergeConfigKey('northcloud.admin.views');
 
+        $this->registerRedisConnection();
+
         $this->app->singleton(NewsSourceResolver::class);
         $this->app->singleton(ArticleIngestionService::class);
 
@@ -27,6 +29,45 @@ class NorthCloudServiceProvider extends ServiceProvider
 
             return new $resourceClass;
         });
+    }
+
+    public function boot(): void
+    {
+        if (config('northcloud.migrations.enabled', true)) {
+            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        }
+
+        $this->loadRoutesFrom(__DIR__.'/../routes/admin.php');
+        $this->app['router']->aliasMiddleware('northcloud-admin',
+            Http\Middleware\EnsureUserIsAdmin::class);
+
+        $this->shareNavigation();
+
+        if ($this->app->runningInConsole()) {
+            $this->registerCommands();
+            $this->registerPublishableAssets();
+        }
+    }
+
+    protected function registerRedisConnection(): void
+    {
+        $connectionName = config('northcloud.redis.connection', 'northcloud');
+
+        // Don't override if the app already defines this connection
+        if (config("database.redis.{$connectionName}")) {
+            return;
+        }
+
+        config(["database.redis.{$connectionName}" => [
+            'prefix' => '',
+            'url' => env('NORTHCLOUD_REDIS_URL'),
+            'host' => env('NORTHCLOUD_REDIS_HOST', env('REDIS_HOST', '127.0.0.1')),
+            'username' => env('NORTHCLOUD_REDIS_USERNAME', env('REDIS_USERNAME')),
+            'password' => env('NORTHCLOUD_REDIS_PASSWORD', env('REDIS_PASSWORD')),
+            'port' => env('NORTHCLOUD_REDIS_PORT', env('REDIS_PORT', '6379')),
+            'database' => env('NORTHCLOUD_REDIS_DB', '0'),
+            'read_timeout' => env('NORTHCLOUD_REDIS_READ_TIMEOUT', 30),
+        ]]);
     }
 
     protected function shareNavigation(): void
@@ -50,6 +91,48 @@ class NorthCloudServiceProvider extends ServiceProvider
         ]);
     }
 
+    protected function registerCommands(): void
+    {
+        $this->commands([
+            Console\Commands\SubscribeToArticleFeed::class,
+            Console\Commands\ArticlesStatus::class,
+            Console\Commands\ArticlesStats::class,
+            Console\Commands\ArticlesTestPublish::class,
+            Console\Commands\ArticlesReplay::class,
+        ]);
+    }
+
+    protected function registerPublishableAssets(): void
+    {
+        $this->publishes([
+            __DIR__.'/../config/northcloud.php' => config_path('northcloud.php'),
+        ], 'northcloud-config');
+
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'northcloud-migrations');
+
+        $this->publishes([
+            __DIR__.'/../database/admin-migrations/2025_01_01_000005_add_is_admin_to_users_table.php' => database_path('migrations/2025_01_01_000005_add_is_admin_to_users_table.php'),
+        ], 'northcloud-admin-migrations');
+
+        $this->publishes([
+            __DIR__.'/../resources/js/pages/dashboard/articles' => resource_path('js/pages/dashboard/articles'),
+        ], 'northcloud-admin-views');
+
+        $this->publishes([
+            __DIR__.'/../resources/js/components/admin' => resource_path('js/components/admin'),
+        ], 'northcloud-admin-components');
+
+        $this->publishes([
+            __DIR__.'/../resources/js/layouts/AdminLayout.vue' => resource_path('js/layouts/AdminLayout.vue'),
+        ], 'northcloud-admin-layout');
+
+        $this->publishes([
+            __DIR__.'/../resources/js/composables/useNorthcloudNavigation.ts' => resource_path('js/composables/useNorthcloudNavigation.ts'),
+        ], 'northcloud-composables');
+    }
+
     protected function deepMergeConfigKey(string $key): void
     {
         $packageConfig = require __DIR__.'/../config/northcloud.php';
@@ -64,54 +147,6 @@ class NorthCloudServiceProvider extends ServiceProvider
         if (is_array($packageDefaults)) {
             $current = config($key, []);
             config([$key => array_merge($packageDefaults, $current)]);
-        }
-    }
-
-    public function boot(): void
-    {
-        if (config('northcloud.migrations.enabled', true)) {
-            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        }
-
-        // Admin routes
-        $this->loadRoutesFrom(__DIR__.'/../routes/admin.php');
-        $this->app['router']->aliasMiddleware('northcloud-admin',
-            Http\Middleware\EnsureUserIsAdmin::class);
-
-        $this->shareNavigation();
-
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                Console\Commands\SubscribeToArticleFeed::class,
-                Console\Commands\ArticlesStatus::class,
-                Console\Commands\ArticlesStats::class,
-                Console\Commands\ArticlesTestPublish::class,
-                Console\Commands\ArticlesReplay::class,
-            ]);
-
-            $this->publishes([
-                __DIR__.'/../config/northcloud.php' => config_path('northcloud.php'),
-            ], 'northcloud-config');
-
-            $this->publishes([
-                __DIR__.'/../database/migrations' => database_path('migrations'),
-            ], 'northcloud-migrations');
-
-            $this->publishes([
-                __DIR__.'/../resources/js/pages/dashboard/articles' => resource_path('js/pages/dashboard/articles'),
-            ], 'northcloud-admin-views');
-
-            $this->publishes([
-                __DIR__.'/../resources/js/components/admin' => resource_path('js/components/admin'),
-            ], 'northcloud-admin-components');
-
-            $this->publishes([
-                __DIR__.'/../resources/js/layouts/AdminLayout.vue' => resource_path('js/layouts/AdminLayout.vue'),
-            ], 'northcloud-admin-layout');
-
-            $this->publishes([
-                __DIR__.'/../database/admin-migrations/2025_01_01_000005_add_is_admin_to_users_table.php' => database_path('migrations/2025_01_01_000005_add_is_admin_to_users_table.php'),
-            ], 'northcloud-admin-migrations');
         }
     }
 }
