@@ -128,9 +128,6 @@ class NorthCloudServiceProvider extends ServiceProvider
             __DIR__.'/../resources/js/layouts/AdminLayout.vue' => resource_path('js/layouts/AdminLayout.vue'),
         ], 'northcloud-admin-layout');
 
-        $this->publishes([
-            __DIR__.'/../resources/js/composables/useNorthcloudNavigation.ts' => resource_path('js/composables/useNorthcloudNavigation.ts'),
-        ], 'northcloud-composables');
     }
 
     protected function deepMergeConfigKey(string $key): void
