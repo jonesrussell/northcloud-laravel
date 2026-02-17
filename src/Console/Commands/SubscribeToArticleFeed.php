@@ -96,7 +96,13 @@ class SubscribeToArticleFeed extends Command
             return array_map('trim', explode(',', $channels));
         }
 
-        return config('northcloud.redis.channels', ['articles:default']);
+        $channels = config('northcloud.redis.channels', []);
+
+        if ($channels === [] && config('northcloud.redis.channel')) {
+            return [config('northcloud.redis.channel')];
+        }
+
+        return $channels ?: ['articles:default'];
     }
 
     protected function processMessage(string $message): void
