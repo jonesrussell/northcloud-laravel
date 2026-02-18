@@ -143,7 +143,8 @@ class NorthCloudServiceProvider extends ServiceProvider
         ], 'northcloud-user-views');
 
         $this->publishes([
-            __DIR__.'/../resources/js/components/users' => resource_path('js/components/users'),
+            __DIR__.'/../resources/js/components/admin/UserForm.vue' => resource_path('js/components/admin/UserForm.vue'),
+            __DIR__.'/../resources/js/components/admin/UsersTable.vue' => resource_path('js/components/admin/UsersTable.vue'),
         ], 'northcloud-user-components');
 
     }

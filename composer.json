@@ -1,6 +1,6 @@
 {
     "name": "jonesrussell/northcloud-laravel",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Shared article ingestion pipeline for North Cloud-connected Laravel sites",
     "type": "library",
     "license": "MIT",
