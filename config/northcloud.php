@@ -50,6 +50,24 @@ return [
                 'route' => 'dashboard.articles.index',
                 'icon' => 'FileText',
             ],
+            [
+                'title' => 'Users',
+                'route' => 'dashboard.users.index',
+                'icon' => 'Users',
+            ],
+        ],
+    ],
+
+    'users' => [
+        'enabled' => true,
+        'middleware' => ['web', 'auth', 'northcloud-admin'],
+        'prefix' => 'dashboard/users',
+        'name_prefix' => 'dashboard.users.',
+        'resource' => \JonesRussell\NorthCloud\Admin\UserResource::class,
+        'controller' => \JonesRussell\NorthCloud\Http\Controllers\Admin\UserController::class,
+        'policy' => null,  // null = is_admin check; set to policy class for custom auth
+        'views' => [
+            'prefix' => 'dashboard/users',
         ],
     ],
 
