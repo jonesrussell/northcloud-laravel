@@ -23,6 +23,7 @@ class NorthCloudServiceProvider extends ServiceProvider
         $this->deepMergeConfigKey('northcloud.admin.views');
         $this->deepMergeConfigKey('northcloud.users');
         $this->deepMergeConfigKey('northcloud.users.views');
+        $this->deepMergeConfigKey('northcloud.articleable');
 
         $this->registerRedisConnection();
 

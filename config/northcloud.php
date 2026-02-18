@@ -58,6 +58,11 @@ return [
         ],
     ],
 
+    'articleable' => [
+        'enabled' => false,
+        'models' => [],
+    ],
+
     'users' => [
         'enabled' => true,
         'middleware' => ['web', 'auth', 'northcloud-admin'],
