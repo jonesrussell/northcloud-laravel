@@ -17,6 +17,10 @@ class EnsureUserIsAdmin
             if (! $policy->viewAdmin($request->user())) {
                 abort(403, 'Unauthorized. Admin access required.');
             }
+        } elseif (method_exists($request->user(), 'isAdmin')) {
+            if (! $request->user()->isAdmin()) {
+                abort(403, 'Unauthorized. Admin access required.');
+            }
         } elseif (! $request->user()?->is_admin) {
             abort(403, 'Unauthorized. Admin access required.');
         }
