@@ -38,19 +38,23 @@ class ArticlesStatus extends Command
             $port = $redisConfig['port'] ?? 6379;
             $this->line("Redis host:      {$host}:{$port}");
 
-            try {
-                $client = new \Redis;
-                $start = microtime(true);
-                $client->connect($host, (int) $port, 2);
-                if ($password = $redisConfig['password'] ?? null) {
-                    $client->auth($password);
+            if (! class_exists(\Redis::class)) {
+                $this->line('Connection:      <fg=yellow>Not tested</> (ext-redis not available)');
+            } else {
+                try {
+                    $client = new \Redis;
+                    $start = microtime(true);
+                    $client->connect($host, (int) $port, 2);
+                    if ($password = $redisConfig['password'] ?? null) {
+                        $client->auth($password);
+                    }
+                    $client->ping();
+                    $latency = round((microtime(true) - $start) * 1000);
+                    $this->line("Connection:      <fg=green>Connected</> (latency: {$latency}ms)");
+                    $client->close();
+                } catch (\Exception $e) {
+                    $this->line('Connection:      <fg=yellow>Not tested</> (connection failed)');
                 }
-                $client->ping();
-                $latency = round((microtime(true) - $start) * 1000);
-                $this->line("Connection:      <fg=green>Connected</> (latency: {$latency}ms)");
-                $client->close();
-            } catch (\Exception $e) {
-                $this->line('Connection:      <fg=yellow>Not tested</> (ext-redis not available or connection failed)');
             }
         } else {
             $this->line('Redis host:      <fg=red>Not configured</>');
