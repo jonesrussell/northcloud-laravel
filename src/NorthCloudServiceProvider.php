@@ -127,6 +127,7 @@ class NorthCloudServiceProvider extends ServiceProvider
     protected function registerCommands(): void
     {
         $this->commands([
+            Console\Commands\NorthCloudInstall::class,
             Console\Commands\SubscribeToArticleFeed::class,
             Console\Commands\ArticlesStatus::class,
             Console\Commands\ArticlesStats::class,
@@ -170,6 +171,9 @@ class NorthCloudServiceProvider extends ServiceProvider
             __DIR__.'/../resources/js/components/admin/UsersTable.vue' => resource_path('js/components/admin/UsersTable.vue'),
         ], 'northcloud-user-components');
 
+        $this->publishes([
+            __DIR__.'/../resources/js/components/ui' => resource_path('js/components/ui'),
+        ], 'northcloud-ui-components');
     }
 
     protected function deepMergeConfigKey(string $key): void
