@@ -6,13 +6,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
+        "ext-json": "*",
+        "ext-pcntl": "*",
+        "ext-redis": "*",
         "illuminate/console": "^12.0",
         "illuminate/database": "^12.0",
         "illuminate/events": "^12.0",
         "illuminate/support": "^12.0",
-        "ext-redis": "*",
-        "ext-json": "*",
-        "ext-pcntl": "*"
+        "sendgrid/sendgrid": "^8.0"
     },
     "require-dev": {
         "inertiajs/inertia-laravel": "^2.0",
