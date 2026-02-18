@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use JonesRussell\NorthCloud\Contracts\ArticleModel;
 
@@ -18,6 +19,7 @@ class Article extends Model implements ArticleModel
         'news_source_id', 'title', 'slug', 'excerpt', 'content',
         'url', 'external_id', 'image_url', 'author', 'status',
         'published_at', 'crawled_at', 'metadata', 'view_count', 'is_featured',
+        'articleable_type', 'articleable_id',
     ];
 
     protected function casts(): array
@@ -44,6 +46,11 @@ class Article extends Model implements ArticleModel
         return $this->belongsToMany($tagModel, 'article_tag')
             ->withPivot('confidence')
             ->withTimestamps();
+    }
+
+    public function articleable(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function getExternalId(): string
