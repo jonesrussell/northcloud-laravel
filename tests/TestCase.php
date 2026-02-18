@@ -2,6 +2,7 @@
 
 namespace JonesRussell\NorthCloud\Tests;
 
+use Illuminate\Support\Facades\Route;
 use JonesRussell\NorthCloud\NorthCloudServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -10,6 +11,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageProviders($app): array
     {
         return [
+            \Inertia\ServiceProvider::class,
             NorthCloudServiceProvider::class,
         ];
     }
@@ -24,6 +26,18 @@ abstract class TestCase extends BaseTestCase
         ]);
         $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
         $app['config']->set('auth.providers.users.model', \JonesRussell\NorthCloud\Tests\Fixtures\User::class);
+        $app['config']->set('inertia.testing.ensure_pages_exist', false);
+
+        // Register a minimal root view for Inertia rendering in tests
+        $app->afterResolving('view', function ($view) {
+            $view->addLocation(__DIR__.'/views');
+        });
+    }
+
+    protected function defineRoutes($router): void
+    {
+        // Provide a login route for auth middleware redirect in tests
+        Route::get('/login', fn () => 'login')->name('login')->middleware('web');
     }
 
     protected function defineDatabaseMigrations(): void
