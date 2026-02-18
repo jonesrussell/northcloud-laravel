@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -29,11 +30,13 @@ interface Props {
     modelValue: Record<string, unknown>;
     errors?: Record<string, string>;
     relationOptions?: Record<string, Array<{ id: number; name: string; [key: string]: unknown }>>;
+    articleableOptions?: Array<{ model: string; label: string; display: string }>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     errors: () => ({}),
     relationOptions: () => ({}),
+    articleableOptions: () => [],
 });
 
 const emit = defineEmits<{
@@ -54,6 +57,46 @@ const getRelationOptions = (field: FieldDefinition): Array<{ id: number; name: s
 const isVisible = (field: FieldDefinition): boolean => {
     // published_at and is_featured are handled by the page component, not the form
     return !['published_at'].includes(field.name);
+};
+
+const articleableSearch = ref('');
+const articleableResults = ref<Array<{ id: number; label: string }>>([]);
+const articleableLoading = ref(false);
+let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const searchAssociatable = async (model: string, q: string) => {
+    if (!q || q.length < 2) {
+        articleableResults.value = [];
+        return;
+    }
+    articleableLoading.value = true;
+    try {
+        const response = await fetch(
+            `/dashboard/articles/search-associatable?model=${encodeURIComponent(model)}&q=${encodeURIComponent(q)}`,
+        );
+        articleableResults.value = await response.json();
+    } finally {
+        articleableLoading.value = false;
+    }
+};
+
+const debouncedSearch = (model: string, q: string) => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => searchAssociatable(model, q), 300);
+};
+
+const selectArticleable = (model: string, id: number, label: string) => {
+    updateField('articleable_type', model);
+    updateField('articleable_id', id);
+    articleableSearch.value = label;
+    articleableResults.value = [];
+};
+
+const clearArticleable = () => {
+    updateField('articleable_type', null);
+    updateField('articleable_id', null);
+    articleableSearch.value = '';
+    articleableResults.value = [];
 };
 </script>
 
@@ -227,6 +270,51 @@ const isVisible = (field: FieldDefinition): boolean => {
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
+                        </template>
+
+                        <!-- Articleable (searchable association) -->
+                        <template v-else-if="field.type === 'articleable' && articleableOptions.length > 0">
+                            <Label :for="field.name">
+                                {{ field.label }}
+                            </Label>
+                            <div class="space-y-2">
+                                <div v-for="opt in articleableOptions" :key="opt.model" class="relative">
+                                    <div class="flex gap-2">
+                                        <Input
+                                            :id="field.name"
+                                            v-model="articleableSearch"
+                                            type="text"
+                                            :placeholder="`Search ${opt.label.toLowerCase()}...`"
+                                            @input="debouncedSearch(opt.model, articleableSearch)"
+                                        />
+                                        <Button
+                                            v-if="modelValue.articleable_id"
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            @click="clearArticleable"
+                                        >
+                                            Clear
+                                        </Button>
+                                    </div>
+                                    <!-- Results dropdown -->
+                                    <div
+                                        v-if="articleableResults.length > 0"
+                                        class="absolute z-10 mt-1 w-full rounded-md border border-input bg-popover shadow-lg"
+                                    >
+                                        <button
+                                            v-for="result in articleableResults"
+                                            :key="result.id"
+                                            type="button"
+                                            class="w-full px-3 py-2 text-left text-sm hover:bg-accent"
+                                            @click="selectArticleable(opt.model, result.id, result.label)"
+                                        >
+                                            {{ result.label }}
+                                        </button>
+                                    </div>
+                                    <p v-if="articleableLoading" class="text-xs text-muted-foreground">Searching...</p>
+                                </div>
+                            </div>
                         </template>
 
                         <!-- Error message -->
