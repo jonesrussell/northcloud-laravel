@@ -82,4 +82,11 @@ return [
             'prefix' => 'dashboard/articles',
         ],
     ],
+
+    'mail' => [
+        'sendgrid' => [
+            'api_key' => env('SENDGRID_API_KEY'),
+            'set_as_default' => true,
+        ],
+    ],
 ];

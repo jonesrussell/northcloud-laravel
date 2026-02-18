@@ -10,3 +10,8 @@ it('provides default config values', function () {
     expect(config('northcloud.content.allowed_tags'))->toBeArray();
     expect(config('northcloud.tags.default_type'))->toBe('topic');
 });
+
+it('provides default mail config values', function () {
+    expect(config('northcloud.mail.sendgrid.api_key'))->toBeNull();
+    expect(config('northcloud.mail.sendgrid.set_as_default'))->toBeTrue();
+});
