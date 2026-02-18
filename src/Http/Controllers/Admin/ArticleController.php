@@ -4,6 +4,7 @@ namespace JonesRussell\NorthCloud\Http\Controllers\Admin;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -68,6 +69,7 @@ class ArticleController extends Controller
         return Inertia::render("{$viewPrefix}/Create", [
             'fields' => $this->resource->fields(),
             'relationOptions' => $this->resource->resolveRelationOptions(),
+            'articleableOptions' => $this->getArticleableOptions(),
         ]);
     }
 
@@ -81,6 +83,7 @@ class ArticleController extends Controller
         $article = $this->articleModel::create($data);
 
         $this->syncRelations($article, $relations);
+        $this->syncArticleable($article, $request);
         $this->afterStore($article, $request);
 
         $routeName = config('northcloud.admin.name_prefix', 'dashboard.articles.').'index';
@@ -118,6 +121,7 @@ class ArticleController extends Controller
             'article' => $article,
             'fields' => $this->resource->fields(),
             'relationOptions' => $this->resource->resolveRelationOptions(),
+            'articleableOptions' => $this->getArticleableOptions(),
         ]);
     }
 
@@ -133,6 +137,7 @@ class ArticleController extends Controller
         $article->update($data);
 
         $this->syncRelations($article, $relations);
+        $this->syncArticleable($article, $request);
         $this->afterUpdate($article, $request);
 
         $routeName = config('northcloud.admin.name_prefix', 'dashboard.articles.').'index';
@@ -227,6 +232,50 @@ class ArticleController extends Controller
         $routeName = config('northcloud.admin.name_prefix', 'dashboard.articles.').'index';
 
         return to_route($routeName)->with('success', $message);
+    }
+
+    public function searchAssociatable(Request $request): JsonResponse
+    {
+        if (! config('northcloud.articleable.enabled', false)) {
+            abort(404);
+        }
+
+        $request->validate([
+            'model' => 'required|string',
+            'q' => 'nullable|string|max:255',
+        ]);
+
+        $modelClass = $request->input('model');
+        $models = config('northcloud.articleable.models', []);
+
+        if (! isset($models[$modelClass]) || ! class_exists($modelClass)) {
+            abort(422, 'Invalid model type.');
+        }
+
+        $config = $models[$modelClass];
+        $query = $modelClass::query();
+
+        if ($q = $request->input('q')) {
+            $searchColumns = $config['search'] ?? ['name'];
+            $query->where(function ($qb) use ($searchColumns, $q) {
+                foreach ($searchColumns as $col) {
+                    $qb->orWhere($col, 'LIKE', "%{$q}%");
+                }
+            });
+        }
+
+        $displayField = $config['display'] ?? 'name';
+
+        return response()->json(
+            $query->select(['id', $displayField])
+                ->orderBy($displayField)
+                ->limit(20)
+                ->get()
+                ->map(fn ($item) => [
+                    'id' => $item->id,
+                    'label' => $item->{$displayField},
+                ])
+        );
     }
 
     public function trashed(Request $request): Response
@@ -354,5 +403,38 @@ class ArticleController extends Controller
                 $article->{$field['relationship']}()->sync($ids);
             }
         }
+    }
+
+    private function syncArticleable(Model $article, Request $request): void
+    {
+        if (! config('northcloud.articleable.enabled', false)) {
+            return;
+        }
+
+        if ($request->has('articleable_type') && $request->has('articleable_id')) {
+            $article->update([
+                'articleable_type' => $request->input('articleable_type') ?: null,
+                'articleable_id' => $request->input('articleable_id') ?: null,
+            ]);
+        }
+    }
+
+    /** @return array<int, array{model: string, label: string, display: string}> */
+    private function getArticleableOptions(): array
+    {
+        if (! config('northcloud.articleable.enabled', false)) {
+            return [];
+        }
+
+        $options = [];
+        foreach (config('northcloud.articleable.models', []) as $modelClass => $config) {
+            $options[] = [
+                'model' => $modelClass,
+                'label' => $config['label'] ?? class_basename($modelClass),
+                'display' => $config['display'] ?? 'name',
+            ];
+        }
+
+        return $options;
     }
 }

@@ -21,6 +21,9 @@ Route::middleware($middleware)->prefix($prefix)->name($namePrefix)->group(functi
     Route::post('bulk-unpublish', [$controller, 'bulkUnpublish'])->name('bulk-unpublish');
     Route::post('{article}/toggle-publish', [$controller, 'togglePublish'])->name('toggle-publish');
 
+    // Associatable search (for polymorphic relations)
+    Route::get('search-associatable', [$controller, 'searchAssociatable'])->name('search-associatable');
+
     // Resource routes (explicit to avoid Route::resource naming issues)
     Route::get('/', [$controller, 'index'])->name('index');
     Route::get('create', [$controller, 'create'])->name('create');
