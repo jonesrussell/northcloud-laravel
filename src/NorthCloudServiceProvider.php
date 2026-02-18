@@ -5,6 +5,7 @@ namespace JonesRussell\NorthCloud;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use JonesRussell\NorthCloud\Admin\ArticleResource;
+use JonesRussell\NorthCloud\Admin\UserResource;
 use JonesRussell\NorthCloud\Services\ArticleIngestionService;
 use JonesRussell\NorthCloud\Services\NewsSourceResolver;
 
@@ -18,6 +19,8 @@ class NorthCloudServiceProvider extends ServiceProvider
         // This lets consumer apps override only the admin keys they need.
         $this->deepMergeConfigKey('northcloud.admin');
         $this->deepMergeConfigKey('northcloud.admin.views');
+        $this->deepMergeConfigKey('northcloud.users');
+        $this->deepMergeConfigKey('northcloud.users.views');
 
         $this->registerRedisConnection();
 
@@ -26,6 +29,12 @@ class NorthCloudServiceProvider extends ServiceProvider
 
         $this->app->singleton(ArticleResource::class, function ($app) {
             $resourceClass = config('northcloud.admin.resource', ArticleResource::class);
+
+            return new $resourceClass;
+        });
+
+        $this->app->singleton(UserResource::class, function ($app) {
+            $resourceClass = config('northcloud.users.resource', UserResource::class);
 
             return new $resourceClass;
         });
@@ -38,6 +47,7 @@ class NorthCloudServiceProvider extends ServiceProvider
         }
 
         $this->loadRoutesFrom(__DIR__.'/../routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../routes/users.php');
         $this->app['router']->aliasMiddleware('northcloud-admin',
             Http\Middleware\EnsureUserIsAdmin::class);
 
@@ -127,6 +137,14 @@ class NorthCloudServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/js/layouts/AdminLayout.vue' => resource_path('js/layouts/AdminLayout.vue'),
         ], 'northcloud-admin-layout');
+
+        $this->publishes([
+            __DIR__.'/../resources/js/pages/dashboard/users' => resource_path('js/pages/dashboard/users'),
+        ], 'northcloud-user-views');
+
+        $this->publishes([
+            __DIR__.'/../resources/js/components/users' => resource_path('js/components/users'),
+        ], 'northcloud-user-components');
 
     }
 
