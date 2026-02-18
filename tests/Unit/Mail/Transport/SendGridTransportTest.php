@@ -27,7 +27,12 @@ it('sends a basic email via SendGrid API', function () {
         ->shouldReceive('send')
         ->once()
         ->withArgs(function (\SendGrid\Mail\Mail $mail) {
-            return true;
+            $json = json_decode(json_encode($mail), true);
+
+            return ($json['from']['email'] ?? '') === 'sender@example.com'
+                && ($json['from']['name'] ?? '') === 'Sender'
+                && ($json['subject'] ?? '') === 'Test Subject'
+                && ($json['personalizations'][0]['to'][0]['email'] ?? '') === 'recipient@example.com';
         })
         ->andReturn($response);
 
@@ -74,6 +79,33 @@ it('sends email with attachments', function () {
     $this->sendGridClient
         ->shouldReceive('send')
         ->once()
+        ->andReturn($response);
+
+    $sentMessage = $this->transport->send($email);
+
+    expect($sentMessage)->not->toBeNull();
+});
+
+it('sends email with reply-to', function () {
+    $email = (new Email)
+        ->from(new Address('sender@example.com', 'Sender'))
+        ->to(new Address('recipient@example.com', 'Recipient'))
+        ->replyTo(new Address('reply@example.com', 'Reply'))
+        ->subject('Test Subject')
+        ->html('<p>Hello</p>');
+
+    $response = Mockery::mock(Response::class);
+    $response->shouldReceive('statusCode')->andReturn(202);
+    $response->shouldReceive('body')->andReturn('');
+
+    $this->sendGridClient
+        ->shouldReceive('send')
+        ->once()
+        ->withArgs(function (\SendGrid\Mail\Mail $mail) {
+            $json = json_decode(json_encode($mail), true);
+
+            return ($json['reply_to']['email'] ?? '') === 'reply@example.com';
+        })
         ->andReturn($response);
 
     $sentMessage = $this->transport->send($email);
