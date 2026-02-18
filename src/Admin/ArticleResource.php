@@ -8,7 +8,7 @@ class ArticleResource
 {
     public function fields(): array
     {
-        return [
+        $fields = [
             ['name' => 'title', 'type' => 'text', 'label' => 'Title', 'required' => true, 'rules' => ['required', 'string', 'max:255']],
             ['name' => 'url', 'type' => 'url', 'label' => 'URL', 'required' => true, 'rules' => ['required', 'url']],
             ['name' => 'excerpt', 'type' => 'textarea', 'label' => 'Excerpt', 'rules' => ['nullable', 'string', 'max:500']],
@@ -22,6 +22,18 @@ class ArticleResource
             ['name' => 'published_at', 'type' => 'datetime', 'label' => 'Published At', 'rules' => ['nullable', 'date']],
             ['name' => 'is_featured', 'type' => 'checkbox', 'label' => 'Featured', 'rules' => ['boolean']],
         ];
+
+        if (config('northcloud.articleable.enabled', false)) {
+            $fields[] = [
+                'name' => 'articleable',
+                'type' => 'articleable',
+                'label' => 'Associated With',
+                'required' => false,
+                'rules' => ['nullable'],
+            ];
+        }
+
+        return $fields;
     }
 
     public function filters(): array
