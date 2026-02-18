@@ -29,7 +29,12 @@ class SendGridTransport extends AbstractTransport
         $sendGridMail->setFrom($sender->getAddress(), $sender->getName());
         $sendGridMail->setSubject($email->getSubject() ?? '');
 
+        $ccAndBcc = array_merge($email->getCc(), $email->getBcc());
+
         foreach ($envelope->getRecipients() as $recipient) {
+            if (in_array($recipient, $ccAndBcc, true)) {
+                continue;
+            }
             $sendGridMail->addTo($recipient->getAddress(), $recipient->getName());
         }
 
@@ -46,12 +51,12 @@ class SendGridTransport extends AbstractTransport
             break; // SendGrid only supports one reply-to
         }
 
-        if ($email->getHtmlBody()) {
-            $sendGridMail->addContent('text/html', $email->getHtmlBody());
-        }
-
         if ($email->getTextBody()) {
             $sendGridMail->addContent('text/plain', $email->getTextBody());
+        }
+
+        if ($email->getHtmlBody()) {
+            $sendGridMail->addContent('text/html', $email->getHtmlBody());
         }
 
         foreach ($email->getAttachments() as $attachment) {
