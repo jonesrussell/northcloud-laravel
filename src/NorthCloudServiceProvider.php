@@ -2,10 +2,12 @@
 
 namespace JonesRussell\NorthCloud;
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use JonesRussell\NorthCloud\Admin\ArticleResource;
 use JonesRussell\NorthCloud\Admin\UserResource;
+use JonesRussell\NorthCloud\Mail\Transport\SendGridTransport;
 use JonesRussell\NorthCloud\Services\ArticleIngestionService;
 use JonesRussell\NorthCloud\Services\NewsSourceResolver;
 
@@ -42,6 +44,8 @@ class NorthCloudServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->registerSendGridTransport();
+
         if (config('northcloud.migrations.enabled', true)) {
             $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         }
@@ -78,6 +82,25 @@ class NorthCloudServiceProvider extends ServiceProvider
             'database' => env('NORTHCLOUD_REDIS_DB', '0'),
             'read_timeout' => env('NORTHCLOUD_REDIS_READ_TIMEOUT', 30),
         ]]);
+    }
+
+    protected function registerSendGridTransport(): void
+    {
+        $apiKey = config('northcloud.mail.sendgrid.api_key');
+
+        if (! $apiKey) {
+            return;
+        }
+
+        Mail::extend('sendgrid', function () use ($apiKey) {
+            return new SendGridTransport(new \SendGrid($apiKey));
+        });
+
+        config(['mail.mailers.sendgrid' => ['transport' => 'sendgrid']]);
+
+        if (config('northcloud.mail.sendgrid.set_as_default', true)) {
+            config(['mail.default' => 'sendgrid']);
+        }
     }
 
     protected function shareNavigation(): void
