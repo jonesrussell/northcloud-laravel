@@ -54,6 +54,9 @@ class NorthCloudInstall extends Command
         }
 
         info('NorthCloud installed successfully.');
+        info('');
+        note('Middleware: The "northcloud-admin" middleware alias is available for protecting admin routes.');
+        note('Usage: Route::middleware(\'northcloud-admin\')->group(function () { ... });');
 
         return self::SUCCESS;
     }

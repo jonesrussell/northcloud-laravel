@@ -48,6 +48,12 @@ it('skips UI components with --skip-ui', function () {
     expect(File::isDirectory(resource_path('js/components/ui')))->toBeFalse();
 });
 
+it('shows middleware guidance on install', function () {
+    $this->artisan('northcloud:install', ['--skip-ui' => true])
+        ->expectsOutputToContain('northcloud-admin')
+        ->assertSuccessful();
+});
+
 it('overwrites existing files with --force', function () {
     // First install
     $this->artisan('northcloud:install');
