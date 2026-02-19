@@ -56,6 +56,8 @@ class NorthCloudServiceProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('northcloud-admin',
             Http\Middleware\EnsureUserIsAdmin::class);
 
+        app(Support\ConfigValidator::class)->validate();
+
         $this->shareNavigation();
 
         if ($this->app->runningInConsole()) {
@@ -128,6 +130,7 @@ class NorthCloudServiceProvider extends ServiceProvider
     protected function registerCommands(): void
     {
         $this->commands([
+            Console\Commands\NorthCloudDoctor::class,
             Console\Commands\NorthCloudInstall::class,
             Console\Commands\SubscribeToArticleFeed::class,
             Console\Commands\ArticlesStatus::class,
