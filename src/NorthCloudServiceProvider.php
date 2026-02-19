@@ -27,6 +27,7 @@ class NorthCloudServiceProvider extends ServiceProvider
 
         $this->registerRedisConnection();
 
+        $this->app->singleton(NorthCloud::class);
         $this->app->singleton(NewsSourceResolver::class);
         $this->app->singleton(ArticleIngestionService::class);
 
@@ -118,6 +119,7 @@ class NorthCloudServiceProvider extends ServiceProvider
 
         Inertia::share('northcloud', fn () => [
             'navigation' => collect(config('northcloud.navigation.items', []))
+                ->merge(app(NorthCloud::class)->getRegisteredNavigation())
                 ->map(fn (array $item) => [
                     'title' => $item['title'],
                     'href' => route($item['route']),

@@ -37,7 +37,10 @@
         "laravel": {
             "providers": [
                 "JonesRussell\\NorthCloud\\NorthCloudServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "NorthCloud": "JonesRussell\\NorthCloud\\Facades\\NorthCloud"
+            }
         }
     },
     "config": {
