@@ -24,12 +24,12 @@
     },
     "autoload": {
         "psr-4": {
-            "JonesRussell\\NorthCloud\\": "src/"
+            "JonesRussell\\NorthCloud\\": "src/",
+            "JonesRussell\\NorthCloud\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "JonesRussell\\NorthCloud\\Database\\Factories\\": "database/factories/",
             "JonesRussell\\NorthCloud\\Tests\\": "tests/"
         }
     },
