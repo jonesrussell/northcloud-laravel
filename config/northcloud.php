@@ -42,6 +42,17 @@ return [
         'allowed' => [],  // Empty array means all tags allowed
     ],
 
+    'linking' => [
+        'enabled' => false,
+        'threshold' => 0.3,
+        'weights' => [
+            'title_match' => 0.5,
+            'tag_overlap' => 0.3,
+            'metadata_match' => 0.2,
+        ],
+        'min_keyword_length' => 3,
+    ],
+
     'navigation' => [
         'enabled' => true,
         'items' => [
