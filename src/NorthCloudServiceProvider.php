@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JonesRussell\NorthCloud;
 
 use Illuminate\Support\Facades\Mail;

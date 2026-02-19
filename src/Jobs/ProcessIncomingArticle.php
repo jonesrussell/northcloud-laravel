@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JonesRussell\NorthCloud\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;

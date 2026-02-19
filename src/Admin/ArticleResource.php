@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JonesRussell\NorthCloud\Admin;
 
 use Illuminate\Validation\Rule;

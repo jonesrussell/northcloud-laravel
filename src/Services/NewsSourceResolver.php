@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JonesRussell\NorthCloud\Services;
 
 use Illuminate\Database\Eloquent\Model;

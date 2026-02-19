@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JonesRussell\NorthCloud\Http\Controllers\Admin;
 
 use Illuminate\Database\Eloquent\Builder;
