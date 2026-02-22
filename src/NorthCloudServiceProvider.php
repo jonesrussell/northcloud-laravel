@@ -119,16 +119,44 @@ class NorthCloudServiceProvider extends ServiceProvider
             return;
         }
 
-        Inertia::share('northcloud', fn () => [
-            'navigation' => collect(config('northcloud.navigation.items', []))
-                ->merge(app(NorthCloud::class)->getRegisteredNavigation())
-                ->map(fn (array $item) => [
-                    'title' => $item['title'],
-                    'href' => route($item['route']),
-                    'icon' => $item['icon'],
-                ])
-                ->all(),
-        ]);
+        Inertia::share('northcloud', function () {
+            $navigation = [];
+            if ($this->userCanSeeAdminNavigation()) {
+                $navigation = collect(config('northcloud.navigation.items', []))
+                    ->merge(app(NorthCloud::class)->getRegisteredNavigation())
+                    ->map(fn (array $item) => [
+                        'title' => $item['title'],
+                        'href' => route($item['route']),
+                        'icon' => $item['icon'],
+                    ])
+                    ->all();
+            }
+
+            return ['navigation' => $navigation];
+        });
+    }
+
+    /**
+     * Same logic as EnsureUserIsAdmin middleware: only show admin nav when user is allowed.
+     */
+    protected function userCanSeeAdminNavigation(): bool
+    {
+        $user = request()->user();
+        if ($user === null) {
+            return false;
+        }
+
+        $policyClass = config('northcloud.admin.policy');
+        if ($policyClass) {
+            $policy = app($policyClass);
+
+            return $policy->viewAdmin($user);
+        }
+        if (method_exists($user, 'isAdmin')) {
+            return $user->isAdmin();
+        }
+
+        return (bool) $user->is_admin;
     }
 
     protected function registerCommands(): void
