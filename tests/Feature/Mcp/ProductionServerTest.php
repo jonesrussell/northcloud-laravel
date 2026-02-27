@@ -58,18 +58,18 @@ describe('ProductionSshTool', function () {
         $sshService = new ProductionSshService;
         $tool = new ProductionSshTool($sshService);
 
-        $result = $tool->handle(['command' => 'ls -la']);
+        $result = $tool->handle('ls -la');
 
-        expect($result->isError)->toBeTrue();
+        expect($result->isError())->toBeTrue();
     });
 
     it('returns error when command is empty', function () {
         $sshService = new ProductionSshService;
         $tool = new ProductionSshTool($sshService);
 
-        $result = $tool->handle(['command' => '']);
+        $result = $tool->handle('');
 
-        expect($result->isError)->toBeTrue();
+        expect($result->isError())->toBeTrue();
     });
 
     it('executes command via SSH service', function () {
@@ -84,11 +84,11 @@ describe('ProductionSshTool', function () {
             ]);
 
         $tool = new ProductionSshTool($mockService);
-        $result = $tool->handle(['command' => 'ls -la']);
+        $result = $tool->handle('ls -la');
 
-        expect($result->isError)->toBeFalse();
-        expect($result->content[0]->text)->toContain('Exit code: 0');
-        expect($result->content[0]->text)->toContain('drwxr-xr-x');
+        expect($result->isError())->toBeFalse();
+        expect((string) $result->content())->toContain('Exit code: 0');
+        expect((string) $result->content())->toContain('drwxr-xr-x');
     });
 });
 
@@ -97,9 +97,9 @@ describe('ProductionDbQueryTool', function () {
         $sshService = new ProductionSshService;
         $tool = new ProductionDbQueryTool($sshService);
 
-        $result = $tool->handle(['query' => 'DELETE FROM users']);
+        $result = $tool->handle('DELETE FROM users');
 
-        expect($result->isError)->toBeTrue();
+        expect($result->isError())->toBeTrue();
     });
 
     it('allows SELECT queries and returns JSON', function () {
@@ -114,10 +114,10 @@ describe('ProductionDbQueryTool', function () {
             ]);
 
         $tool = new ProductionDbQueryTool($mockService);
-        $result = $tool->handle(['query' => 'SELECT * FROM movies LIMIT 5']);
+        $result = $tool->handle('SELECT * FROM movies LIMIT 5');
 
-        expect($result->isError)->toBeFalse();
-        expect($result->content[0]->text)->toContain('Apocalypse Now');
+        expect($result->isError())->toBeFalse();
+        expect((string) $result->content())->toContain('Apocalypse Now');
     });
 
     it('handles empty results', function () {
@@ -132,10 +132,10 @@ describe('ProductionDbQueryTool', function () {
             ]);
 
         $tool = new ProductionDbQueryTool($mockService);
-        $result = $tool->handle(['query' => 'SELECT * FROM movies WHERE id = 999999']);
+        $result = $tool->handle('SELECT * FROM movies WHERE id = 999999');
 
-        expect($result->isError)->toBeFalse();
-        expect($result->content[0]->text)->toContain('no results');
+        expect($result->isError())->toBeFalse();
+        expect((string) $result->content())->toContain('no results');
     });
 });
 
@@ -152,10 +152,10 @@ describe('ProductionArtisanTool', function () {
             ]);
 
         $tool = new ProductionArtisanTool($mockService);
-        $result = $tool->handle(['command' => 'cache:clear']);
+        $result = $tool->handle('cache:clear');
 
-        expect($result->isError)->toBeFalse();
-        expect($result->content[0]->text)->toContain('Application cache cleared!');
+        expect($result->isError())->toBeFalse();
+        expect((string) $result->content())->toContain('Application cache cleared!');
     });
 
     it('passes arguments to artisan command', function () {
@@ -170,13 +170,10 @@ describe('ProductionArtisanTool', function () {
             ]);
 
         $tool = new ProductionArtisanTool($mockService);
-        $result = $tool->handle([
-            'command' => 'tmdb:import',
-            'arguments' => '--limit=100 --sync',
-        ]);
+        $result = $tool->handle('tmdb:import', '--limit=100 --sync');
 
-        expect($result->isError)->toBeFalse();
-        expect($result->content[0]->text)->toContain('Imported 100 movies');
+        expect($result->isError())->toBeFalse();
+        expect((string) $result->content())->toContain('Imported 100 movies');
     });
 
     it('strips php artisan prefix from command', function () {
@@ -191,11 +188,8 @@ describe('ProductionArtisanTool', function () {
             ]);
 
         $tool = new ProductionArtisanTool($mockService);
-        $result = $tool->handle([
-            'command' => 'php artisan migrate',
-            'arguments' => '--force',
-        ]);
+        $result = $tool->handle('php artisan migrate', '--force');
 
-        expect($result->isError)->toBeFalse();
+        expect($result->isError())->toBeFalse();
     });
 });

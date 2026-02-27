@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JonesRussell\NorthCloud\Mcp\Tools;
 
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use JonesRussell\NorthCloud\Services\ProductionSshService;
+use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
-use Laravel\Mcp\Server\Tools\ToolInputSchema;
-use Laravel\Mcp\Server\Tools\ToolResult;
 
 class ProductionSshTool extends Tool
 {
@@ -20,28 +20,27 @@ class ProductionSshTool extends Tool
         return 'Run a shell command on the production server via SSH. Use for general server operations, checking logs, file operations, etc.';
     }
 
-    public function schema(ToolInputSchema $schema): ToolInputSchema
+    public function schema(JsonSchema $schema): array
     {
-        return $schema
-            ->string('command')
-            ->description('The shell command to run on the production server.')
-            ->required();
+        return [
+            'command' => $schema->string()
+                ->description('The shell command to run on the production server.')
+                ->required(),
+        ];
     }
 
-    public function handle(array $arguments): ToolResult
+    public function handle(string $command): Response
     {
-        $command = $arguments['command'] ?? '';
-
         if (empty($command)) {
-            return ToolResult::error('You must provide a command to run on the production server.');
+            return Response::error('You must provide a command to run on the production server.');
         }
 
         if (strlen($command) > 2000) {
-            return ToolResult::error('Command must be 2000 characters or less for safety.');
+            return Response::error('Command must be 2000 characters or less for safety.');
         }
 
         if (! $this->sshService->isConfigured()) {
-            return ToolResult::error('Production SSH is not configured. Set NORTHCLOUD_PRODUCTION_HOST and NORTHCLOUD_PRODUCTION_PATH environment variables.');
+            return Response::error('Production SSH is not configured. Set NORTHCLOUD_PRODUCTION_HOST and NORTHCLOUD_PRODUCTION_PATH environment variables.');
         }
 
         try {
@@ -61,9 +60,9 @@ class ProductionSshTool extends Tool
                 $output .= "(no output)\n";
             }
 
-            return ToolResult::text($output);
+            return Response::text($output);
         } catch (\Exception $e) {
-            return ToolResult::error("SSH error: {$e->getMessage()}");
+            return Response::error("SSH error: {$e->getMessage()}");
         }
     }
 }

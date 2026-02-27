@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JonesRussell\NorthCloud\Mcp\Tools;
 
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use JonesRussell\NorthCloud\Services\ProductionSshService;
+use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
-use Laravel\Mcp\Server\Tools\ToolInputSchema;
-use Laravel\Mcp\Server\Tools\ToolResult;
 
 class ProductionArtisanTool extends Tool
 {
@@ -20,32 +20,32 @@ class ProductionArtisanTool extends Tool
         return 'Run a Laravel artisan command on the production server. Examples: "migrate --force", "cache:clear", "tmdb:import --limit=100 --sync"';
     }
 
-    public function schema(ToolInputSchema $schema): ToolInputSchema
+    public function schema(JsonSchema $schema): array
     {
-        return $schema
-            ->string('command')
-            ->description('The artisan command to run (without "php artisan" prefix). Examples: "migrate", "cache:clear", "tmdb:import".')
-            ->required()
-            ->string('arguments')
-            ->description('Optional arguments and flags for the command. Examples: "--force", "--limit=100 --sync".')
-            ->optional();
+        return [
+            'command' => $schema->string()
+                ->description('The artisan command to run (without "php artisan" prefix). Examples: "migrate", "cache:clear", "tmdb:import".')
+                ->required(),
+            'arguments' => $schema->string()
+                ->description('Optional arguments and flags for the command. Examples: "--force", "--limit=100 --sync".'),
+        ];
     }
 
-    public function handle(array $arguments): ToolResult
+    public function handle(string $command, string $arguments = ''): Response
     {
-        $command = trim($arguments['command'] ?? '');
-        $args = trim($arguments['arguments'] ?? '');
+        $command = trim($command);
+        $arguments = trim($arguments);
 
         if (empty($command)) {
-            return ToolResult::error('You must provide an artisan command to run (e.g., "migrate", "cache:clear", "tmdb:import").');
+            return Response::error('You must provide an artisan command to run (e.g., "migrate", "cache:clear", "tmdb:import").');
         }
 
         if (strlen($command) > 500) {
-            return ToolResult::error('Command name must be 500 characters or less.');
+            return Response::error('Command name must be 500 characters or less.');
         }
 
-        if (strlen($args) > 1000) {
-            return ToolResult::error('Arguments must be 1000 characters or less.');
+        if (strlen($arguments) > 1000) {
+            return Response::error('Arguments must be 1000 characters or less.');
         }
 
         if (str_starts_with($command, 'artisan ')) {
@@ -56,15 +56,15 @@ class ProductionArtisanTool extends Tool
         }
 
         if (! $this->sshService->isConfigured()) {
-            return ToolResult::error('Production SSH is not configured. Set NORTHCLOUD_PRODUCTION_HOST and NORTHCLOUD_PRODUCTION_PATH environment variables.');
+            return Response::error('Production SSH is not configured. Set NORTHCLOUD_PRODUCTION_HOST and NORTHCLOUD_PRODUCTION_PATH environment variables.');
         }
 
         try {
-            $result = $this->sshService->artisan($command, $args);
+            $result = $this->sshService->artisan($command, $arguments);
 
             $fullCommand = "php artisan {$command}";
-            if (! empty($args)) {
-                $fullCommand .= " {$args}";
+            if (! empty($arguments)) {
+                $fullCommand .= " {$arguments}";
             }
 
             $output = "Command: {$fullCommand}\n";
@@ -82,9 +82,9 @@ class ProductionArtisanTool extends Tool
                 $output .= "(no output)\n";
             }
 
-            return ToolResult::text($output);
+            return Response::text($output);
         } catch (\Exception $e) {
-            return ToolResult::error("Artisan command error: {$e->getMessage()}");
+            return Response::error("Artisan command error: {$e->getMessage()}");
         }
     }
 }
