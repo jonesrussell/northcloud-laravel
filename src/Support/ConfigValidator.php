@@ -12,6 +12,7 @@ class ConfigValidator
     private const KNOWN_TOP_KEYS = [
         'migrations', 'redis', 'quality', 'models', 'processors', 'processing',
         'content', 'tags', 'navigation', 'articleable', 'users', 'admin', 'mail', 'linking',
+        'mcp',
     ];
 
     /** @var array<string, list<string>> */

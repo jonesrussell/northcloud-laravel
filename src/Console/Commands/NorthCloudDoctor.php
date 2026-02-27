@@ -30,6 +30,7 @@ class NorthCloudDoctor extends Command
         $knownTopKeys = [
             'migrations', 'redis', 'quality', 'models', 'processors', 'processing',
             'content', 'tags', 'navigation', 'articleable', 'users', 'admin', 'mail', 'linking',
+            'mcp',
         ];
 
         foreach (array_keys(config('northcloud', [])) as $key) {
