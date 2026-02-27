@@ -105,4 +105,15 @@ return [
             'set_as_default' => true,
         ],
     ],
+
+    'mcp' => [
+        'enabled' => (bool) env('NORTHCLOUD_MCP_ENABLED', false),
+        'production' => [
+            'host' => env('NORTHCLOUD_PRODUCTION_HOST'),
+            'user' => env('NORTHCLOUD_PRODUCTION_USER', 'deployer'),
+            'deploy_path' => env('NORTHCLOUD_PRODUCTION_PATH'),
+            'php_binary' => env('NORTHCLOUD_PRODUCTION_PHP', 'php'),
+            'private_key_path' => env('NORTHCLOUD_PRODUCTION_SSH_KEY', '~/.ssh/id_ed25519'),
+        ],
+    ],
 ];

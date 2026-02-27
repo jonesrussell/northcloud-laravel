@@ -12,6 +12,8 @@ use JonesRussell\NorthCloud\Admin\UserResource;
 use JonesRussell\NorthCloud\Mail\Transport\SendGridTransport;
 use JonesRussell\NorthCloud\Services\ArticleIngestionService;
 use JonesRussell\NorthCloud\Services\NewsSourceResolver;
+use JonesRussell\NorthCloud\Services\ProductionSshService;
+use Laravel\Mcp\Facades\Mcp;
 
 class NorthCloudServiceProvider extends ServiceProvider
 {
@@ -32,6 +34,7 @@ class NorthCloudServiceProvider extends ServiceProvider
         $this->app->singleton(NorthCloud::class);
         $this->app->singleton(NewsSourceResolver::class);
         $this->app->singleton(ArticleIngestionService::class);
+        $this->app->singleton(ProductionSshService::class);
 
         $this->app->singleton(ArticleResource::class, function ($app) {
             $resourceClass = config('northcloud.admin.resource', ArticleResource::class);
@@ -56,6 +59,7 @@ class NorthCloudServiceProvider extends ServiceProvider
 
         $this->loadRoutesFrom(__DIR__.'/../routes/admin.php');
         $this->loadRoutesFrom(__DIR__.'/../routes/users.php');
+        $this->registerMcpRoutes();
         $this->app['router']->aliasMiddleware('northcloud-admin',
             Http\Middleware\EnsureUserIsAdmin::class);
 
@@ -227,5 +231,18 @@ class NorthCloudServiceProvider extends ServiceProvider
             $current = config($key, []);
             config([$key => array_merge($packageDefaults, $current)]);
         }
+    }
+
+    protected function registerMcpRoutes(): void
+    {
+        if (! config('northcloud.mcp.enabled', false)) {
+            return;
+        }
+
+        if (! class_exists(Mcp::class)) {
+            return;
+        }
+
+        $this->loadRoutesFrom(__DIR__.'/../routes/mcp.php');
     }
 }
